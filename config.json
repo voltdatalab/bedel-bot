@@ -1,0 +1,19 @@
+{
+	"env": "dev",
+	"database": {
+		"drivername": "postgres",
+		"username": "",
+		"password": "",
+		"host": "",
+		"port": "",
+		"database": "",
+		"schema": ""
+	},
+	"database_dev": {
+		"drivername": "sqlite:///banco.db"
+	},
+	"telegram": {
+		"id": "",
+		"hash": ""
+	}
+}
