@@ -1,4 +1,4 @@
-# bot-presidenciaveis-telegram
+# 🕵️ Monitor Presidenciáveis Telegram
 Bot do Telegram - Para a captura de dados dos canais no Telegram dos Presidenciáveis
 
 ## 📝 Estrutura dos Dados
@@ -15,7 +15,7 @@ Sendo as colunas comuns para ambas:
 - **date:** Data de modificação
 
 
-## 🏃 Como rodar
+## 🏃 Como Executar
 - Execute o comando `pip install -r requirements.txt` para instalar as dependências;
 - Adicione as informações do banco de dados no `config.json`;
 - Troque a variavel `"env": "dev"` para `"env": "prod"` no arquivo `config.json` caso esteja em produção;
