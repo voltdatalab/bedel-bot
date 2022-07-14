@@ -19,10 +19,6 @@ def update_entities(dialog):
         telegram_id=str(dialog.entity.id)).filter_by(type=type(dialog.entity).__name__).first()
 
     if (old_entity):
-        old_entity.verified = dialog.entity.verified if hasattr(
-            dialog.entity, 'verified') else False
-        old_entity.participants_count = dialog.entity.participants_count if hasattr(
-            dialog.entity, 'participants_count') else 0
 
         # Novas variaveis
         participants_count=dialog.entity.participants_count if hasattr(
@@ -41,6 +37,12 @@ def update_entities(dialog):
         name=dialog.entity.title if (type(dialog.entity).__name__ != 'User') else (dialog.entity.first_name if hasattr(dialog.entity, 'first_name') else "-" +
         " " + dialog.entity.last_name if hasattr(dialog.entity, 'last_name') else '-')
         
+        old_entity.verified = dialog.entity.verified if hasattr(
+            dialog.entity, 'verified') else False
+
+        old_entity.participants_count = dialog.entity.participants_count if hasattr(
+            dialog.entity, 'participants_count') else 0
+
         new_entity = {
             "type": tipo[0],
             "participants_count": participants_count, 
@@ -71,6 +73,14 @@ def update_entities(dialog):
                 old_value=change[1],
                 new_value=change[2]
             ))
+        
+        # append new_entity in a json file snapshot folder
+
+        # with open('snapshot/entities.json', 'r') as f:
+        #     entities = json.load(f)
+        # entities.append(new_entity)
+        # with open('snapshot/entities.json', 'w') as f:
+        #     json.dump(entities, f, indent=4)
  
     else:
         new_entity = Entity(type=type(dialog.entity).__name__,
@@ -94,6 +104,88 @@ def update_entities(dialog):
 
         session.add(new_entity)
         session.flush()
+
+    session.commit()
+    session.close()
+
+def save_json(dialog):
+    participants_count=dialog.entity.participants_count if hasattr(
+        dialog.entity, 'participants_count') else 0
+    telegram_id=str(dialog.entity.id)
+    username=dialog.entity.username if hasattr(
+            dialog.entity, 'username') else '-',
+    verified=dialog.entity.verified if hasattr(
+            dialog.entity, 'verified') else False,
+    tipo=type(dialog.entity).__name__,
+    broadcast=dialog.entity.broadcast if hasattr(
+            dialog.entity, 'broadcast') else False,
+    megagroup=dialog.entity.megagroup if hasattr(
+            dialog.entity, 'megagroup') else False,
+    gigagroup=dialog.entity.gigagroup if hasattr(
+            dialog.entity, 'gigagroup') else False,
+    name=dialog.entity.title if (type(dialog.entity).__name__ != 'User') else (dialog.entity.first_name if hasattr(dialog.entity, 'first_name') else "-" +
+    " " + dialog.entity.last_name if hasattr(dialog.entity, 'last_name') else '-')
+    
+    new_entity = {
+        "type": tipo[0],
+        "telegram_id": telegram_id,
+        "participants_count": participants_count, 
+        "username": username[0], 
+        "verified": verified[0], 
+        "broadcast": broadcast[0], 
+        "megagroup": megagroup[0],
+        "gigagroup": gigagroup[0],
+        "name": name
+    }
+
+    # append new_entity in a json file snapshot folder
+
+    with open('snapshot/entities_new.json', 'r') as f:
+        entities = json.load(f)
+    entities.append(new_entity)
+    with open('snapshot/entities_new.json', 'w') as f:
+        json.dump(entities, f, indent=4)
+
+def save_db_json():
+    old_entity = get_entities()
+
+    for entity in old_entity:
+        if entity.deleted is not True:
+            new_entity = {
+                "type": entity.type,
+                "telegram_id": entity.telegram_id,
+                "participants_count": entity.participants_count, 
+                "username": entity.username, 
+                "verified": entity.verified, 
+                "broadcast": entity.broadcast, 
+                "megagroup": entity.megagroup,
+                "gigagroup": entity.gigagroup,
+                "name": entity.name
+            }
+            with open('snapshot/entities_old.json', 'r') as f:
+                entities = json.load(f)
+            entities.append(new_entity)
+            with open('snapshot/entities_old.json', 'w') as f:
+                json.dump(entities, f, indent=4)
+
+def refresh_deleted():
+    import pandas as pd
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    df_db = pd.read_json('snapshot/entities_old.json')
+    df_tel = pd.read_json('snapshot/entities_new.json')
+
+    diff_set = set(df_db["telegram_id"].values) ^ set(df_tel["telegram_id"].values)
+
+    for entity_id in diff_set:
+        print("\n--Atualizado entity_id: " + str(entity_id))
+        entity = session.query(Entity).filter_by(telegram_id=str(entity_id)).first()
+        
+        print(entity.name)
+        entity.deleted = True
+        entity.deleted_at_date = datetime.datetime.now().date()
 
     session.commit()
     session.close()
