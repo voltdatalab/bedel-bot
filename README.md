@@ -16,7 +16,12 @@ Sendo as colunas comuns para ambas:
 
 
 ## 🏃 Como Executar
+
+### Primeira Configuração
 - Execute o comando `pip install -r requirements.txt` para instalar as dependências;
 - Adicione as informações do banco de dados no `config.json`;
 - Troque a variavel `"env": "dev"` para `"env": "prod"` no arquivo `config.json` caso esteja em produção;
 - Execute o comando `python run_configuration.py` para fazer o upload do banco de dados.
+
+### Capturar/Atualizar os canais monitorados
+- Execute o comando `python get_groups.py` para registrar/atualizar novos canais no banco de dados.
