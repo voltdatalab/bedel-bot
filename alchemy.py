@@ -44,7 +44,7 @@ class Message(Base):
     message = Column(Text)
     entity_id = Column(Integer, ForeignKey("telegram_entities.id"), nullable=False)
     date = Column(DateTime)
-    edit_date = Column(DateTime)
+    # edit_date = Column(DateTime)
     forwards = Column(Integer)
     views = Column(Integer)
     author = Column(Integer)

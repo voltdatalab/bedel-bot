@@ -19,8 +19,8 @@ with TelegramClient('anon', api['id'], api['hash']) as client:
 		if (dialog.entity.id > 0 and type(dialog.entity).__name__ != 'User'):
 
 			database.update_entities(dialog)
-			utils.save_json(dialog)
+			utils.save_json_entities(dialog)
 
-	utils.save_db_json()
+	utils.save_db_json_entities()
 
-database.refresh_deleted()
+database.refresh_deleted_entities()

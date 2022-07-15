@@ -5,10 +5,11 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 
-from alchemy import Entity, EntityChange, Message, Media
+from alchemy import Entity, EntityChange, Message, MessageChange, Media
 
 engine = conn.run()
 
+# ENTITIES STUFF
 def update_entities(dialog):
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -112,7 +113,7 @@ def update_entities(dialog):
     session.commit()
     session.close()
 
-def refresh_deleted():
+def refresh_deleted_entities():
     import pandas as pd
 
     Session = sessionmaker(bind=engine)
@@ -140,43 +141,69 @@ def get_entities():
 
     return session.query(Entity).all()
 
-def get_last_id(dialog):
+
+# MESSSAGES STUFF
+def save_message(id, t_message):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    db_entity = session.query(Entity).filter_by(
-        telegram_id=str(dialog.entity.id)).first()
-    result = session.query(func.max(Message.message_id)).filter_by(entity_id=db_entity.id).first()
-
-    session.close()
-    
-    return result
-
-def get_first_id(dialog, days_qty):
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    db_entity = session.query(Entity).filter_by(telegram_id=str(dialog.entity.id)).first()
-    result = session.query(func.min(Message.message_id)).filter_by(entity_id=db_entity.id).filter(
-        Message.date > datetime.date.today() - datetime.timedelta(days=days_qty)).first()
-
-    session.close()
-
-    return result
-
-def save_message(dialog, t_message):
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    db_entity = session.query(Entity).filter_by(telegram_id=str(dialog.entity.id)).first()
+    db_entity = session.query(Entity).filter_by(telegram_id=str(id)).first()
 
     old_message = session.query(Message).filter_by(entity_id=db_entity.id).filter(Message.message_id == t_message.id).first()
 
     if (old_message):
+        # Novas varaiveis
+        message_id=t_message.id,
+        message=t_message.message,
+        entity_id=db_entity.id,
+        date=t_message.date,
+        # edit_date=t_message.editdate if hasattr(
+        #     t_message, 'editdate') else None,
+        forwards=t_message.forwards,
+        views=t_message.views,
+        author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
+        fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None,
+        fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+        fwd_from_type = type(t_message.fwd_from.from_id).__name__ if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+
+        new_message = {
+            "message_id": message_id[0],
+            "message": message[0],
+            "entity_id": entity_id[0],
+            # "date": date[0],
+            # "edit_date": edit_date[0],
+            "forwards": forwards[0],
+            "views": views[0],
+            "author": author[0],
+            "fwd_from_id_message": fwd_from_id_message[0],
+            "fwd_from_id": fwd_from_id[0],
+            "fwd_from_type": fwd_from_type[0]
+        }
+
+        # old_message.update(new_message)
+
+        changes = []
+        # Compara se existe diferenças e coloca em Changes
+        for key, value in vars(old_message).items():
+            if key in new_message:
+                dialog_value = new_message[key]
+                if dialog_value != value:
+                    changes.append((key, value, dialog_value))
+
+        # Adiciona changes na tabela EntityChange
+        for change in changes:
+            session.add(MessageChange(
+                message_id=message_id[0],
+                date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(),
+                attr_name=change[0],
+                old_value=change[1],
+                new_value=change[2],
+            ))
+        
         old_message.forwards = t_message.forwards
         old_message.views = t_message.views
         old_message.message = t_message.message
-        old_message.edit_date = t_message.editdate if hasattr(t_message, 'editdate') else None
+        # old_message.edit_date = t_message.edit_date if t_message.edit_date else None
         old_message.fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None
         old_message.fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None
 
@@ -186,8 +213,9 @@ def save_message(dialog, t_message):
             message=t_message.message,
             entity_id=db_entity.id,
             date=t_message.date,
-            edit_date=t_message.editdate if hasattr(
-                t_message, 'editdate') else None,
+            # edit_date=t_message.editdate if hasattr(
+            # t_message, 'editdate') else None,
+
             forwards=t_message.forwards,
             views=t_message.views,
             author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
@@ -215,6 +243,31 @@ def save_message(dialog, t_message):
     session.commit()
     session.close()
 
-def date_format(message):
-    if type(message) is datetime:
-        return message.strftime("%Y-%m-%d %H:%M:%S")
+def get_messages():
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    return session.query(Message).all()
+
+def refresh_deleted_messages():
+    import pandas as pd
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    df_db = pd.read_json('snapshot/messages_old.json')
+    df_tel = pd.read_json('snapshot/messages_new.json')
+
+    diff_set = set(df_db["message_id"].values) ^ set(df_tel["message_id"].values)
+    print("DIFF SET")
+    print(diff_set)
+    for message_id in diff_set:
+        print("\n--Atualizado message_id: " + str(message_id))
+        message = session.query(Message).filter_by(message_id=str(message_id)).first()
+        
+        print(message.message)
+        message.deleted = True
+        message.deleted_at_date = datetime.datetime.now().date()
+
+    session.commit()
+    session.close()
