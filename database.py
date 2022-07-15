@@ -15,7 +15,7 @@ def update_entities(dialog):
 
     old_entity = session.query(Entity).filter_by(
         telegram_id=str(dialog.entity.id)).filter_by(type=type(dialog.entity).__name__).first()
-
+    
     if (old_entity):
 
         # Novas variaveis
@@ -35,11 +35,11 @@ def update_entities(dialog):
         name=dialog.entity.title if (type(dialog.entity).__name__ != 'User') else (dialog.entity.first_name if hasattr(dialog.entity, 'first_name') else "-" +
         " " + dialog.entity.last_name if hasattr(dialog.entity, 'last_name') else '-')
         
-        old_entity.verified = dialog.entity.verified if hasattr(
-            dialog.entity, 'verified') else False
+        # old_entity.verified = dialog.entity.verified if hasattr(
+        #     dialog.entity, 'verified') else False
 
-        old_entity.participants_count = dialog.entity.participants_count if hasattr(
-            dialog.entity, 'participants_count') else 0
+        # old_entity.participants_count = dialog.entity.participants_count if hasattr(
+        #     dialog.entity, 'participants_count') else 0
 
         new_entity = {
             "type": tipo[0],
@@ -61,6 +61,10 @@ def update_entities(dialog):
                     changes.append((key, value, dialog_value))
 
         print(changes)
+
+        # if ( str( old_entity.id ) == '5'):
+        #     print(dialog.id)
+        #     input("ola")
         
         # Adiciona changes na tabela EntityChange
         for change in changes:
@@ -72,14 +76,16 @@ def update_entities(dialog):
                 new_value=change[2]
             ))
         
-        # append new_entity in a json file snapshot folder
+        # Atualizar old_entity com novos dados
+        old_entity.name = new_entity["name"]
+        old_entity.type = new_entity["type"]
+        old_entity.participants_count = new_entity["participants_count"]
+        old_entity.username = new_entity["username"]
+        old_entity.verified = new_entity["verified"]
+        old_entity.broadcast = new_entity["broadcast"]
+        old_entity.megagroup = new_entity["megagroup"]
+        old_entity.gigagroup = new_entity["gigagroup"]
 
-        # with open('snapshot/entities.json', 'r') as f:
-        #     entities = json.load(f)
-        # entities.append(new_entity)
-        # with open('snapshot/entities.json', 'w') as f:
-        #     json.dump(entities, f, indent=4)
- 
     else:
         new_entity = Entity(type=type(dialog.entity).__name__,
                             telegram_id=str(dialog.entity.id),
