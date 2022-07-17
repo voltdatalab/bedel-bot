@@ -1,5 +1,6 @@
 import datetime
 import conn
+import emoji
 
 from sqlalchemy import create_engine, func
 from sqlalchemy.engine.url import URL
@@ -144,7 +145,7 @@ def get_entities():
 
 # MESSSAGES STUFF
 def save_message(id, t_message):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=engine, autoflush=False)
     session = Session()
 
     db_entity = session.query(Entity).filter_by(telegram_id=str(id)).first()
@@ -193,7 +194,7 @@ def save_message(id, t_message):
         # Adiciona changes na tabela EntityChange
         for change in changes:
             session.add(MessageChange(
-                message_id=message_id[0],
+                message_id=old_message.id,
                 date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(),
                 attr_name=change[0],
                 old_value=change[1],
@@ -202,7 +203,7 @@ def save_message(id, t_message):
         
         old_message.forwards = t_message.forwards
         old_message.views = t_message.views
-        old_message.message = t_message.message
+        old_message.message = emoji.demojize(t_message.message)
         # old_message.edit_date = t_message.edit_date if t_message.edit_date else None
         old_message.fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None
         old_message.fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None
@@ -210,7 +211,7 @@ def save_message(id, t_message):
     else: 
         new_message = Message(
             message_id=t_message.id,
-            message=t_message.message,
+            message=emoji.demojize(t_message.message),
             entity_id=db_entity.id,
             date=t_message.date,
             # edit_date=t_message.editdate if hasattr(
@@ -226,7 +227,6 @@ def save_message(id, t_message):
         )
 
         session.add(new_message)
-        session.flush()
 
         if hasattr(t_message.media, 'document'):
             new_media = Media(
@@ -239,6 +239,112 @@ def save_message(id, t_message):
             )
 
             session.add(new_media)
+        session.flush()
+
+    session.commit()
+    session.close()
+
+
+def save_messages(id, t_messages):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    db_entity = session.query(Entity).filter_by(telegram_id=str(id)).first()
+
+    for t_message in t_messages:
+        old_message = session.query(Message).filter_by(entity_id=db_entity.id).filter(Message.message_id == t_message.id).first()
+
+        if (old_message):
+            # Novas varaiveis
+            message_id=t_message.id,
+            message=emoji.demojize(t_message.message) if t_message.message else "",
+            entity_id=db_entity.id,
+            date=t_message.date,
+            # edit_date=t_message.editdate if hasattr(
+            #     t_message, 'editdate') else None,
+            forwards=t_message.forwards,
+            views=t_message.views,
+            author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
+            fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None,
+            fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+            fwd_from_type = type(t_message.fwd_from.from_id).__name__ if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+
+            new_message = {
+                "message_id": message_id[0],
+                "message": message[0],
+                "entity_id": entity_id[0],
+                # "date": date[0],
+                # "edit_date": edit_date[0],
+                "forwards": forwards[0],
+                "views": views[0],
+                "author": author[0],
+                "fwd_from_id_message": fwd_from_id_message[0],
+                "fwd_from_id": fwd_from_id[0],
+                "fwd_from_type": fwd_from_type[0]
+            }
+
+            # old_message.update(new_message)
+
+            changes = []
+            # Compara se existe diferenças e coloca em Changes
+            for key, value in vars(old_message).items():
+                if key in new_message:
+                    dialog_value = new_message[key]
+                    if dialog_value != value:
+                        if key == "message":
+                            print("a: " + value + str(type(value)))
+                            print("b: " + dialog_value + str(type(dialog_value)))
+                        changes.append((key, value, dialog_value))
+
+            # Adiciona changes na tabela EntityChange
+            for change in changes:
+                session.add(MessageChange(
+                    message_id=old_message.id,
+                    date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(),
+                    attr_name=change[0],
+                    old_value=change[1],
+                    new_value=change[2],
+                ))
+            
+            old_message.forwards = t_message.forwards
+            old_message.views = t_message.views
+            old_message.message = emoji.demojize(t_message.message) if t_message.message else ""
+            # old_message.edit_date = t_message.edit_date if t_message.edit_date else None
+            old_message.fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None
+            old_message.fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None
+
+        else: 
+            new_message = Message(
+                message_id=t_message.id,
+                message=emoji.demojize(t_message.message) if t_message.message else "",
+                entity_id=db_entity.id,
+                date=t_message.date,
+                # edit_date=t_message.editdate if hasattr(
+                # t_message, 'editdate') else None,
+
+                forwards=t_message.forwards,
+                views=t_message.views,
+                author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
+                fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None,
+                fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+                fwd_from_type = type(t_message.fwd_from.from_id).__name__ if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None,
+
+            )
+
+            session.add(new_message)
+            session.flush()
+
+            if hasattr(t_message.media, 'document'):
+                new_media = Media(
+                    message_id = new_message.id,
+                    media_id = t_message.media.document.id,
+                    access_hash = t_message.media.document.access_hash,
+                    file_reference = t_message.media.document.file_reference,
+                    date = t_message.media.document.date,
+                    mime_type = t_message.media.document.mime_type
+                )
+
+                session.add(new_media)
 
     session.commit()
     session.close()
