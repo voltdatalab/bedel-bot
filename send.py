@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 import json
+import utils
 from telethon import TelegramClient
 
 from alchemy import Entity, Message, MessageChange
@@ -19,7 +20,11 @@ async def send_to_telegram(mensagem):
     content += ("\nDeletado em: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else "")
 
     # await client.send_message(354322347, content)
-    await client.send_message('me', content)
+    await utils.text_to_image(mensagem)
+    await client.send_message('me', content, file='/tmp/out.png')
+    # await client.send_message('me', content)
+
+
 
     
 

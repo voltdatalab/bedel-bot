@@ -1,3 +1,5 @@
 Telethon
 alchemy
 emoji
+simplediff
+selenium

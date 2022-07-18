@@ -2,6 +2,15 @@ import json
 import database
 import datetime
 
+from PIL import Image
+
+from simplediff import html_diff
+
+from selenium.webdriver.common.by import By
+
+from selenium.webdriver.firefox.options import Options
+from selenium import webdriver
+
 def reset_json(file_name):
     with open('snapshot/'+file_name, 'w') as f:
         json.dump([], f, indent=4)
@@ -66,9 +75,6 @@ def save_db_json_entities():
             with open('snapshot/entities_old.json', 'w') as f:
                 json.dump(entities, f, indent=4)
 
-
-
-
 def save_json_messages(t_message):
 
     message_id=t_message.id,
@@ -119,6 +125,116 @@ def save_db_json_messages():
             entities.append(new_message)
             with open('snapshot/messages_old.json', 'w') as f:
                 json.dump(entities, f, indent=4)
+
+async def text_to_image(mensagem):
+
+    old = mensagem.old_value if hasattr( mensagem, 'old_value') else ""
+    new = mensagem.new_value if hasattr( mensagem, 'new_value') else ""
+    data = str(mensagem.date) if hasattr( mensagem, 'date') else ""
+    data += "\n** Esta Mensagem Foi Deletada: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else ""
+    canal = mensagem.name if hasattr( mensagem, 'name') else ""
+
+    if hasattr( mensagem, 'new_value'):
+        texto = html_diff(old, new)
+    else:
+        texto = mensagem.message if hasattr( mensagem, 'message') else ""
+    
+    html = """
+
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/tmp/styles.css">
+        <style>
+            @font-face { 
+                font-family: Merriweather; 
+                font-style: normal;
+                font-weight: normal;
+                src: url('../fonts/Merriweather-Regular.ttf') format("truetype"); 
+            } 
+
+            body { 
+                background: lightgray url('../img/paper_fibers.png') repeat; 
+                font-family: Merriweather;
+                font-size: 16px;
+            }
+
+            p {
+                margin-left: 2em;
+                /* margin-right: 2em; */
+                width: 500px;
+                margin-top: 1em;
+                margin-bottom: 1em;
+                font-weight: normal;
+            }
+
+            del {
+            background-color: lightpink;
+            color: black;
+            text-decoration: line-through;
+            font-weight: lighter;
+            }
+
+            ins {
+            background-color: aquamarine;
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+    <p>
+    <b> {} </b></br></br>
+    {}
+    </br>
+    <small> {} </small>
+    </p>
+    </body>
+    </html>
+    """.format(canal, texto, data)
+
+    with open('/tmp/tmp.html', 'w') as f:
+        f.write(html)
+
+    firefoxOptions = Options()
+    firefoxOptions.add_argument("-headless")
+
+    driver = webdriver.Firefox(executable_path="./geckodriver", options=firefoxOptions)
+    driver.get('file:///tmp/tmp.html')
+    e = driver.find_elements(By.XPATH, '//p')[0]
+    start_height = int(e.location['y'])
+    block_height = int(e.size['height'])
+    end_height = int(start_height)
+    start_width = int(e.location['x'])
+    block_width = int(e.size['width'])
+
+    end_width = int(start_width)
+    total_height = int(start_height + block_height + end_height)
+    total_width = start_width + block_width + end_width
+
+    # print(start_height, block_height, end_height, start_width, block_width, end_width, total_height, total_width)
+
+    driver.save_screenshot('/tmp/tmp.png')
+    img = Image.open('/tmp/tmp.png')
+    img2 = img.crop((0, 0, total_width, total_height))
+    # img2.save('/tmp/test.png')
+    if int(total_width) > int(total_height * 2):
+        background = Image.new('RGBA', (total_width, int(total_width / 2)),
+                                (255, 255, 255, 0))
+        bg_w, bg_h = background.size
+        offset = (int((bg_w - total_width) / 2),
+                int((bg_h - total_height) / 2))
+    else:
+        background = Image.new('RGBA', (total_width, total_height),
+                                (255, 255, 255, 0))
+        bg_w, bg_h = background.size
+        offset = (int((bg_w - total_width) / 2),
+                int((bg_h - total_height) / 2))
+    background.paste(img2, offset)
+
+    background.save('/tmp/out.png')
 
 
 def date_format(message):

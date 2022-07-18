@@ -131,7 +131,7 @@ def refresh_deleted_entities():
         
         print(entity.name)
         entity.deleted = True
-        entity.deleted_at_date = datetime.datetime.now().date()
+        entity.deleted_at_date = datetime.datetime.now()
 
     session.commit()
     session.close()
@@ -373,7 +373,7 @@ def refresh_deleted_messages():
         
         print(message.message)
         message.deleted = True
-        message.deleted_at_date = datetime.datetime.now().date()
+        message.deleted_at_date = datetime.datetime.now()
 
     session.commit()
     session.close()
