@@ -31,3 +31,7 @@ Sendo as colunas comuns para ambas:
 - Execute o comando `python get_groups.py` para registrar/atualizar novos canais no banco de dados.
 - Execute o comando `python get_new_messages.py` para registrar/atualizar novas mensagens no banco de dados.
 - Execute o comando `python send.py` para mandar os dados para o Telegram/Twitter.
+
+### Imagens
+![image](https://user-images.githubusercontent.com/6977257/179576428-fa9799c6-e776-4d1f-b321-6eaa00cfb529.png)
+- Gerando uma imagem a partir da diferença do texto, sugestão @lagolucas, inspiração [nyt_diff](https://twitter.com/nyt_diff)
