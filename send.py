@@ -21,12 +21,8 @@ async def send_to_telegram(mensagem):
 
     # await client.send_message(354322347, content)
     await utils.text_to_image(mensagem)
-    await client.send_message('me', content, file='/tmp/out.png')
+    await client.send_message(api['channel_response'], content, file='html/out.png')
     # await client.send_message('me', content)
-
-
-
-    
 
 def send_to_twitter(mensagem):
     pass
@@ -96,7 +92,6 @@ async def send(filter_date):
         print("|Deletado em: {}".format(row.deleted_at_date))
         print('+----------------\n')
 
-    
 
 client = TelegramClient('anon', api['id'], api['hash'])
 

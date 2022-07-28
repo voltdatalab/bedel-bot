@@ -14,6 +14,7 @@
 	},
 	"telegram": {
 		"id": "",
-		"hash": ""
+		"hash": "",
+		"channel_response": "me"
 	}
 }

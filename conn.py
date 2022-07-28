@@ -10,7 +10,7 @@ def run():
 
         if env == "dev":
             db_config = config['database_dev']
-            engine = create_engine(db_config['drivername'], echo=True)
+            engine = create_engine(db_config['drivername'], echo=False)
 
         if env == "prod":
             db_config = config['database']

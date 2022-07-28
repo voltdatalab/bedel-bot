@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
+import os
 
 def reset_json(file_name):
     with open('snapshot/'+file_name, 'w') as f:
@@ -139,50 +140,14 @@ async def text_to_image(mensagem):
     else:
         texto = mensagem.message if hasattr( mensagem, 'message') else ""
     
+    print((canal, texto, data))
     html = """
 
     <!doctype html>
     <html lang="en">
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="/tmp/styles.css">
-        <style>
-            @font-face { 
-                font-family: Merriweather; 
-                font-style: normal;
-                font-weight: normal;
-                src: url('../fonts/Merriweather-Regular.ttf') format("truetype"); 
-            } 
-
-            body { 
-                background: lightgray url('../img/paper_fibers.png') repeat; 
-                font-family: Merriweather;
-                font-size: 16px;
-            }
-
-            p {
-                margin-left: 2em;
-                /* margin-right: 2em; */
-                width: 500px;
-                margin-top: 1em;
-                margin-bottom: 1em;
-                font-weight: normal;
-            }
-
-            del {
-            background-color: lightpink;
-            color: black;
-            text-decoration: line-through;
-            font-weight: lighter;
-            }
-
-            ins {
-            background-color: aquamarine;
-            color: black;
-            text-decoration: none;
-            font-weight: bold;
-            }
-        </style>
+        <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
     <p>
@@ -195,14 +160,18 @@ async def text_to_image(mensagem):
     </html>
     """.format(canal, texto, data)
 
-    with open('/tmp/tmp.html', 'w') as f:
+    print(html)
+
+    with open('html/tmp.html', 'w') as f:
         f.write(html)
 
     firefoxOptions = Options()
     firefoxOptions.add_argument("-headless")
 
     driver = webdriver.Firefox(executable_path="./geckodriver", options=firefoxOptions)
-    driver.get('file:///tmp/tmp.html')
+
+    driver.get("file://" + os.getcwd() + "/html/tmp.html")
+
     e = driver.find_elements(By.XPATH, '//p')[0]
     start_height = int(e.location['y'])
     block_height = int(e.size['height'])
@@ -216,10 +185,11 @@ async def text_to_image(mensagem):
 
     # print(start_height, block_height, end_height, start_width, block_width, end_width, total_height, total_width)
 
-    driver.save_screenshot('/tmp/tmp.png')
-    img = Image.open('/tmp/tmp.png')
+    driver.save_screenshot('html/tmp.png')
+
+    img = Image.open('html/tmp.png')
     img2 = img.crop((0, 0, total_width, total_height))
-    # img2.save('/tmp/test.png')
+
     if int(total_width) > int(total_height * 2):
         background = Image.new('RGBA', (total_width, int(total_width / 2)),
                                 (255, 255, 255, 0))
@@ -234,7 +204,7 @@ async def text_to_image(mensagem):
                 int((bg_h - total_height) / 2))
     background.paste(img2, offset)
 
-    background.save('/tmp/out.png')
+    background.save('html/out.png')
 
 
 def date_format(message):
