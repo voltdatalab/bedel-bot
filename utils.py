@@ -1,7 +1,6 @@
 import json 
 import database
 import datetime
-import pytz
 
 from PIL import Image
 

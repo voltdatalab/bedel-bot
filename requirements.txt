@@ -1,6 +1,8 @@
 Telethon
-alchemy
+SQLAlchemy
 emoji
 simplediff
 selenium
-psycopg2-binary 
+psycopg2-binary
+Pillow
+pandas
