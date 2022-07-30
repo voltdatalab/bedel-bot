@@ -3,3 +3,4 @@ alchemy
 emoji
 simplediff
 selenium
+psycopg2-binary 

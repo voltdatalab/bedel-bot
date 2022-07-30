@@ -6,7 +6,8 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 
-from alchemy import Entity, EntityChange, Message, MessageChange, Media
+from alchemy import Entity, EntityChange, Message, MessageChange, Media, Urls
+import utils
 
 engine = conn.run()
 
@@ -72,7 +73,7 @@ def update_entities(dialog):
         for change in changes:
             session.add(EntityChange(
                 entity_id=old_entity.id,
-                date = datetime.datetime.now(),
+                date = datetime.datetime.now(datetime.timezone.utc),
                 attr_name=change[0],
                 old_value=change[1],
                 new_value=change[2]
@@ -131,7 +132,7 @@ def refresh_deleted_entities():
         
         print(entity.name)
         entity.deleted = True
-        entity.deleted_at_date = datetime.datetime.now()
+        entity.deleted_at_date = datetime.datetime.now(datetime.timezone.utc)
 
     session.commit()
     session.close()
@@ -145,6 +146,10 @@ def get_entities():
 
 # MESSSAGES STUFF
 def save_message(id, t_message):
+
+    print("\n\n -- Salvando mensagem: " + str(id))
+    print(len(t_message.entities))
+
     Session = sessionmaker(bind=engine, autoflush=False)
     session = Session()
 
@@ -195,7 +200,7 @@ def save_message(id, t_message):
         for change in changes:
             session.add(MessageChange(
                 message_id=old_message.id,
-                date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(),
+                date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(datetime.timezone.utc),
                 attr_name=change[0],
                 old_value=change[1],
                 new_value=change[2],
@@ -246,13 +251,25 @@ def save_message(id, t_message):
 
 
 def save_messages(id, t_messages):
+    print("--- Entrou no Save messages ---")
     Session = sessionmaker(bind=engine)
     session = Session()
 
     db_entity = session.query(Entity).filter_by(telegram_id=str(id)).first()
 
     for t_message in t_messages:
+        print('-Save Message -', t_message.id)
+
         old_message = session.query(Message).filter_by(entity_id=db_entity.id).filter(Message.message_id == t_message.id).first()
+
+        start_date = '2022-06-15'
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+
+        t_message_date = str(t_message.date.date())
+        now_date = datetime.datetime.strptime(t_message_date, '%Y-%m-%d')
+
+        if (now_date < start_date):
+            break
 
         if (old_message):
             # Novas varaiveis
@@ -260,8 +277,7 @@ def save_messages(id, t_messages):
             message=emoji.demojize(t_message.message) if t_message.message else "",
             entity_id=db_entity.id,
             date=t_message.date,
-            # edit_date=t_message.editdate if hasattr(
-            #     t_message, 'editdate') else None,
+
             forwards=t_message.forwards,
             views=t_message.views,
             author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
@@ -273,8 +289,6 @@ def save_messages(id, t_messages):
                 "message_id": message_id[0],
                 "message": message[0],
                 "entity_id": entity_id[0],
-                # "date": date[0],
-                # "edit_date": edit_date[0],
                 "forwards": forwards[0],
                 "views": views[0],
                 "author": author[0],
@@ -296,11 +310,11 @@ def save_messages(id, t_messages):
                             print("b: " + dialog_value + str(type(dialog_value)))
                         changes.append((key, value, dialog_value))
 
-            # Adiciona changes na tabela EntityChange
+            # Adiciona changes na tabela MessageChange
             for change in changes:
                 session.add(MessageChange(
                     message_id=old_message.id,
-                    date = t_message.edit_date if t_message.edit_date else datetime.datetime.now(),
+                    date = t_message.edit_date if t_message.edit_date and change[0] == 'message' else datetime.datetime.now(datetime.timezone.utc),
                     attr_name=change[0],
                     old_value=change[1],
                     new_value=change[2],
@@ -309,7 +323,6 @@ def save_messages(id, t_messages):
             old_message.forwards = t_message.forwards
             old_message.views = t_message.views
             old_message.message = emoji.demojize(t_message.message) if t_message.message else ""
-            # old_message.edit_date = t_message.edit_date if t_message.edit_date else None
             old_message.fwd_from_id_message = t_message.fwd_from.channel_post if t_message.fwd_from is not None and t_message.fwd_from.channel_post is not None else None
             old_message.fwd_from_id = list(vars(t_message.fwd_from.from_id).values())[0] if t_message.fwd_from is not None and t_message.fwd_from.from_id is not None else None
 
@@ -319,9 +332,6 @@ def save_messages(id, t_messages):
                 message=emoji.demojize(t_message.message) if t_message.message else "",
                 entity_id=db_entity.id,
                 date=t_message.date,
-                # edit_date=t_message.editdate if hasattr(
-                # t_message, 'editdate') else None,
-
                 forwards=t_message.forwards,
                 views=t_message.views,
                 author=t_message.from_id.user_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'user_id') else t_message.from_id.channel_id if hasattr(t_message, 'from_id') and hasattr(t_message.from_id, 'channel_id') else None,
@@ -331,8 +341,11 @@ def save_messages(id, t_messages):
 
             )
 
+            # get id of new message in session
             session.add(new_message)
-            session.flush()
+            session.flush() 
+        
+            print("id do novo message: " + str(new_message.id))
 
             if hasattr(t_message.media, 'document'):
                 new_media = Media(
@@ -345,8 +358,23 @@ def save_messages(id, t_messages):
                 )
 
                 session.add(new_media)
+                session.flush() 
 
-    session.commit()
+            urls = utils.get_urls(t_message)
+            if urls:
+                for url in urls:
+                    new_url = Urls(
+                        message_id=new_message.id,
+                        url=url,
+                    )
+                    session.add(new_url)
+                    session.flush() 
+    
+
+        session.flush() 
+        session.commit()
+        utils.save_json_messages(t_message)
+    
     session.close()
 
 def get_messages():
@@ -373,7 +401,7 @@ def refresh_deleted_messages():
         
         print(message.message)
         message.deleted = True
-        message.deleted_at_date = datetime.datetime.now()
+        message.deleted_at_date = datetime.datetime.now(datetime.timezone.utc)
 
     session.commit()
     session.close()

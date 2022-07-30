@@ -14,8 +14,13 @@ def run():
 
         if env == "prod":
             db_config = config['database']
-            engine = create_engine(URL.create(db_config['drivername'], db_config['username'], db_config['password'], db_config['host'],
-                                    db_config['port'], db_config['database']), 
+            engine = create_engine(URL.create(
+                                    db_config['drivername'], 
+                                    db_config['username'], 
+                                    db_config['password'], 
+                                    db_config['host'],
+                                    db_config['port'],
+                                    db_config['database']), 
                                     connect_args={'options': '-csearch_path={}'.format(db_config['schema'])})
 
     return engine

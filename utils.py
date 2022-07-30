@@ -1,6 +1,7 @@
 import json 
 import database
 import datetime
+import pytz
 
 from PIL import Image
 
@@ -132,7 +133,20 @@ async def text_to_image(mensagem):
     old = mensagem.old_value if hasattr( mensagem, 'old_value') else ""
     new = mensagem.new_value if hasattr( mensagem, 'new_value') else ""
     data = str(mensagem.date) if hasattr( mensagem, 'date') else ""
-    data += "\n** Esta Mensagem Foi Deletada: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else ""
+
+    if hasattr( mensagem, 'date'):
+        data = datetime.datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
+        data -= datetime.timedelta(hours=3)
+        data = data.strftime('%d/%m/%Y %H:%M:%S')
+    
+    data_deleted = str(mensagem.date_deleted) if hasattr( mensagem, 'date_deleted') else ""
+    if hasattr( mensagem, 'deleted_at_date'):
+        
+        data_deleted = datetime.datetime.strptime(data_deleted, '%Y-%m-%d %H:%M:%S')
+        data_deleted -= datetime.timedelta(hours=3)
+        data_deleted = data_deleted.strftime('%d/%m/%Y %H:%M:%S')
+    
+    data += "\n** Esta Mensagem Foi Deletada: " + str(data_deleted)
     canal = mensagem.name if hasattr( mensagem, 'name') else ""
 
     if hasattr( mensagem, 'new_value'):
@@ -159,8 +173,6 @@ async def text_to_image(mensagem):
     </body>
     </html>
     """.format(canal, texto, data)
-
-    print(html)
 
     with open('html/tmp.html', 'w') as f:
         f.write(html)
@@ -206,6 +218,20 @@ async def text_to_image(mensagem):
 
     background.save('html/out.png')
 
+def get_urls(t_message):
+    url = []
+    if (hasattr(t_message, 'entities') and t_message.entities is not None):
+
+        for i in t_message.entities:
+            if (hasattr(i, 'url') and i.url is not None):
+                url.append(i.url)
+            else:
+                url_tmp = t_message.message[i.offset:i.offset + i.length]
+
+                if (url_tmp.startswith('http')):
+                    url.append(url_tmp)
+    
+    return url
 
 def date_format(message):
     if type(message) is datetime:

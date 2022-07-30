@@ -44,7 +44,6 @@ class Message(Base):
     message = Column(Text)
     entity_id = Column(Integer, ForeignKey("telegram_entities.id"), nullable=False)
     date = Column(DateTime)
-    # edit_date = Column(DateTime)
     forwards = Column(Integer)
     views = Column(Integer)
     author = Column(Integer)
@@ -71,6 +70,16 @@ class MessageChange(Base):
 
     def __repr__(self):
         return f'MessageChange {self.attr_name}'
+
+class Urls(Base):
+    __tablename__ = 'telegram_urls'
+
+    id = Column(Integer, primary_key=True)
+    message_id = Column(Integer, ForeignKey("telegram_messages.id"), nullable=False)
+    url = Column(Text)
+
+    def __repr__(self):
+        return f'Url {self.url}'
 
 class Media(Base):
     __tablename__ = 'telegram_medias'

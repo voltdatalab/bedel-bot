@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import json
 import utils
 from telethon import TelegramClient
+import datetime
 
 from alchemy import Entity, Message, MessageChange
 import conn
@@ -51,7 +52,13 @@ async def send(filter_date):
                 MessageChange.attr_name == 'message',
                 MessageChange.date >= filter_date
             ).group_by(
-                MessageChange.message_id
+                MessageChange.message_id,
+                Entity.name, 
+                MessageChange.attr_name, 
+                MessageChange.old_value, 
+                MessageChange.new_value,
+                Message.deleted,
+                Message.deleted_at_date
             ).all()
 
     # Apenas as deletadas
@@ -96,4 +103,10 @@ async def send(filter_date):
 client = TelegramClient('anon', api['id'], api['hash'])
 
 with client:
-    client.loop.run_until_complete(send("2022-07-18 12:03:45.000000"))
+
+    filter_date = datetime.datetime.now(datetime.timezone.utc)
+    filter_date -= datetime.timedelta(hours=4)
+    
+    print("\n\n Filtrando as mensagens de {}".format(filter_date))
+
+    client.loop.run_until_complete(send(filter_date))
