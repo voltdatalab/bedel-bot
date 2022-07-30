@@ -130,8 +130,8 @@ def save_db_json_messages():
 
 async def text_to_image(mensagem):
 
-    old = mensagem.old_value if hasattr( mensagem, 'old_value') else ""
-    new = mensagem.new_value if hasattr( mensagem, 'new_value') else ""
+    old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
+    new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
     data = str(mensagem.date) if hasattr( mensagem, 'date') else ""
 
     if hasattr( mensagem, 'date'):
