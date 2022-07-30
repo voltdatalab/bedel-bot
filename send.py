@@ -22,8 +22,13 @@ async def send_to_telegram(mensagem):
     content += ("\nDeletado em: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else "")
 
     # await client.send_message(354322347, content)
-    await utils.text_to_image(mensagem)
-    await client.send_message(api['channel_response'], content, file='html/out.png')
+    try:
+        await utils.text_to_image(mensagem)
+        await client.send_message(api['channel_response'], content, file='html/out.png')
+    except:
+        print("Erro ao enviar mensagem")
+        await client.send_message(api['channel_response'], content)
+        
     # await client.send_message('me', content)
 
 def send_to_twitter(mensagem):
@@ -105,7 +110,7 @@ client = TelegramClient('anon', api['id'], api['hash'])
 with client:
 
     filter_date = datetime.datetime.now(datetime.timezone.utc)
-    filter_date -= datetime.timedelta(hours=4)
+    filter_date -= datetime.timedelta(hours=2)
     
     print("\n\n Filtrando as mensagens de {}".format(filter_date))
 
