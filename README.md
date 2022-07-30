@@ -27,6 +27,9 @@ Sendo as colunas comuns para ambas:
 - Troque a variavel `"env": "dev"` para `"env": "prod"` no arquivo `config.json` caso esteja em produção;
 - Execute o comando `python run_configuration.py` para fazer o upload do banco de dados.
 
+#### Para EC2
+- Instale o firefox `sudo amazon-linux-extras install firefox`
+
 ### Capturar/Atualizar os canais monitorados
 
 - Execute o comando `python get_groups.py` para registrar/atualizar novos canais no banco de dados.

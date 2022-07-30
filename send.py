@@ -6,6 +6,7 @@ import json
 import utils
 from telethon import TelegramClient
 import datetime
+import emoji
 
 from alchemy import Entity, Message, MessageChange
 import conn
@@ -15,9 +16,9 @@ with open("config.json") as jsonfile:
 
 async def send_to_telegram(mensagem):
     content = "Nome do Canal: " + mensagem.name if mensagem.name else ""
-    content += ("\nMensagem: " + mensagem.message if hasattr( mensagem, 'message') else "")
-    content += ("\nDe: " + mensagem.old_value if hasattr( mensagem, 'old_value') else "")
-    content += ("\nPara: " + mensagem.new_value if hasattr( mensagem, 'new_value') else "")
+    content += ("\nMensagem: " + emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else "")
+    content += ("\nDe: " + emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else "")
+    content += ("\nPara: " + emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else "")
     content += ("\nDeletado em: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else "")
 
     # await client.send_message(354322347, content)
@@ -98,7 +99,6 @@ async def send(filter_date):
         print("|Mensagem Deletada: {}".format(row.message))
         print("|Deletado em: {}".format(row.deleted_at_date))
         print('+----------------\n')
-
 
 client = TelegramClient('anon', api['id'], api['hash'])
 

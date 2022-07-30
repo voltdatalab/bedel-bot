@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
 import os
+import emoji
 
 def reset_json(file_name):
     with open('snapshot/'+file_name, 'w') as f:
@@ -170,7 +171,7 @@ async def text_to_image(mensagem):
     </p>
     </body>
     </html>
-    """.format(canal, texto, data)
+    """.format(canal, texto, emoji.emojize(data))
 
     with open('html/tmp.html', 'w') as f:
         f.write(html)
