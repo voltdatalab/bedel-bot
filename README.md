@@ -4,7 +4,8 @@ Bot do Telegram - Para a captura de dados dos canais no Telegram dos Presidenci�
 
 ## 📝 Estrutura dos Dados
 
-![image](https://user-images.githubusercontent.com/6977257/178580578-ced33dda-6617-4633-b268-8ec87fbf64c4.png)
+![image](https://user-images.githubusercontent.com/6977257/181994965-d5e923a1-aca9-4064-900d-69cce56c8eb8.png)
+
 
 Para as tabelas **telegram_entities** e **telegram_messages** possuímos 'copia' como **\*\_changes**
 
