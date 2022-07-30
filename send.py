@@ -25,8 +25,8 @@ async def send_to_telegram(mensagem):
     try:
         await utils.text_to_image(mensagem)
         await client.send_message(api['channel_response'], content, file='html/out.png')
-    except:
-        print("Erro ao enviar mensagem")
+    except Exception as e:
+        print("Erro ao enviar mensagem para o Telegram: {}".format(e))
         await client.send_message(api['channel_response'], content)
         
     # await client.send_message('me', content)
