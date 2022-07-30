@@ -139,13 +139,12 @@ async def text_to_image(mensagem):
         data = data.strftime('%d/%m/%Y %H:%M:%S')
     
     data_deleted = str(mensagem.date_deleted) if hasattr( mensagem, 'date_deleted') else ""
-    if hasattr( mensagem, 'deleted_at_date'):
-        
+    if data_deleted != "":
         data_deleted = datetime.datetime.strptime(data_deleted, '%Y-%m-%d %H:%M:%S')
         data_deleted -= datetime.timedelta(hours=3)
         data_deleted = data_deleted.strftime('%d/%m/%Y %H:%M:%S')
     
-    data += "\n** Esta Mensagem Foi Deletada: " + str(data_deleted)
+        data += "\n** Esta Mensagem Foi Deletada: " + str(data_deleted)
     canal = mensagem.name if hasattr( mensagem, 'name') else ""
 
     if hasattr( mensagem, 'new_value'):
