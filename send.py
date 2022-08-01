@@ -7,6 +7,7 @@ import utils
 from telethon import TelegramClient
 import datetime
 import emoji
+from simplediff import html_diff
 
 from alchemy import Entity, Message, MessageChange
 import conn
@@ -24,10 +25,19 @@ async def send_to_telegram(mensagem):
     # await client.send_message(354322347, content)
     try:
         await utils.text_to_image(mensagem)
+        content = "Nome do Canal: " + mensagem.name if mensagem.name else ""
         await client.send_message(api['channel_response'], content, file='html/out.png')
+
     except Exception as e:
         print("Erro ao enviar mensagem para o Telegram: {}".format(e))
-        await client.send_message(api['channel_response'], content)
+        old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
+        new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
+        
+        texto = "Nome do Canal: " + mensagem.name if mensagem.name else ""
+        texto += "\n\n"
+        texto += html_diff(old, new)
+        texto = texto.replace('<del>', '❌~~').replace('</del>', '~~').replace('<ins>', '✅**').replace('</ins>', '**')
+        await client.send_message(api['channel_response'], texto)
         
     # await client.send_message('me', content)
 
