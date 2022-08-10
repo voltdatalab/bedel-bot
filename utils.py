@@ -146,12 +146,13 @@ async def text_to_image(mensagem):
         data_deleted = data_deleted.strftime('%d/%m/%Y %H:%M:%S')
     
         data += "\n** Esta Mensagem Foi Deletada: " + str(data_deleted)
+        
     canal = mensagem.name if hasattr( mensagem, 'name') else ""
 
     if hasattr( mensagem, 'new_value'):
         texto = html_diff(old, new)
     else:
-        texto = mensagem.message if hasattr( mensagem, 'message') else ""
+        texto = emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else ""
     
     print((canal, texto, data))
     html = """

@@ -95,3 +95,29 @@ class Media(Base):
 
     def __repr__(self):
         return f'Media {self.file_reference}'
+
+
+
+class TrendingToday(Base):
+   __tablename__ = 'trending_today'
+   id = Column(Integer, primary_key =  True)
+   message_id = Column(Integer)
+   message = Column(String)
+   name = Column(String)
+   entity_id = Column(Integer)
+
+   date = Column(DateTime)
+   forwards = Column(Integer)
+   views = Column(Integer)
+
+class SuperTrendingToday(Base):
+   __tablename__ = 'super_trending_today'
+   id = Column(Integer, primary_key =  True)
+   message_id = Column(Integer)
+   message = Column(String)
+   name = Column(String)
+   entity_id = Column(Integer)
+
+   date = Column(DateTime)
+   forwards = Column(Integer)
+   views = Column(Integer)
