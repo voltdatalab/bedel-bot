@@ -35,6 +35,17 @@ Sendo as colunas comuns para ambas:
 - Execute o comando `python get_groups.py` para registrar/atualizar novos canais no banco de dados.
 - Execute o comando `python get_new_messages.py` para registrar/atualizar novas mensagens no banco de dados.
 - Execute o comando `python send.py` para mandar os dados para o Telegram/Twitter.
+- Execute o comando `python trending.py` para enviar as postagens virais diarias para o Telegram/Twitter.
+
+
+### Configuração do Crontab
+```sh
+# Todo dia a cada 2 horas
+0 */2 * * * cd /home/ec2-user/bot-presidenciaveis-telegram && ./run_all.sh
+
+# Todo dia as 23:00 Horas
+00 23 * * * cd /home/ec2-user/bot-presidenciaveis-telegram && /usr/bin/python3 trending.py >> ~/bot-presidenciaveis-telegram/trending.py 2>&1
+```
 
 ### Imagens
 ![image](https://user-images.githubusercontent.com/6977257/179576428-fa9799c6-e776-4d1f-b321-6eaa00cfb529.png)
