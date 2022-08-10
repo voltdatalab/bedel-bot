@@ -155,8 +155,8 @@ async def text_to_image(mensagem):
         texto = emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else ""
     
     print((canal, texto, data))
+    
     html = """
-
     <!doctype html>
     <html lang="en">
     <head>
@@ -169,7 +169,9 @@ async def text_to_image(mensagem):
     {}
     </br>
     <small> {} </small>
+     <img src='https://nucleo.jor.br/content/images/2022/06/landing-nucleo_logo-header.png'>
     </p>
+   
     </body>
     </html>
     """.format(canal, texto, emoji.emojize(data))
