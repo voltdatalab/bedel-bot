@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;800&display=swap');
 body { 
     background: #111111; 
     font-family: Barlow;
@@ -37,9 +37,18 @@ b {
   color:#ffffff;
 }
 img {
-  width:100px;
+  width:130px;
   margin-left: 2em;
     filter: gray; /* IE6-9 */
   -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
   filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+}
+legenda{
+  margin-left: 2.5em;
+  font-size: 16px;
+}
+url {
+  margin-left: 3em;
+  font-size: 13px;
+  color: #6B6B6B;
 }

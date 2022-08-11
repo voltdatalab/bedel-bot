@@ -145,7 +145,8 @@ async def text_to_image(mensagem):
         data_deleted -= datetime.timedelta(hours=3)
         data_deleted = data_deleted.strftime('%d/%m/%Y %H:%M:%S')
     
-        data += "\n** Esta Mensagem Foi Deletada: " + str(data_deleted)
+        data += "\n\n 🚫 Esta Mensagem Foi Deletada: " + str(data_deleted)
+        data += "\n\n"
         
     canal = mensagem.name if hasattr( mensagem, 'name') else ""
 
@@ -166,12 +167,13 @@ async def text_to_image(mensagem):
     <body>
     <p>
     <b> {} </b></br></br>
-    {}
+        {}
     </br>
-    <small> {} </small>
-     <img src='https://nucleo.jor.br/content/images/2022/06/landing-nucleo_logo-header.png'>
+    <small>{}</small>
     </p>
-   
+    <legenda></div><del>&nbsp &nbsp &nbsp</del>&nbsp Trechos removidos &nbsp &nbsp &nbsp<ins>&nbsp &nbsp &nbsp</ins>&nbsp Trechos acrescentados</legenda></br></br>
+    <img src='https://nucleo.jor.br/content/images/2022/06/landing-nucleo_logo-header.png'><br>
+    <url>nucleo.jor.br/bedelbot</url>
     </body>
     </html>
     """.format(canal, texto, emoji.emojize(data))
@@ -194,7 +196,7 @@ async def text_to_image(mensagem):
     block_width = int(e.size['width'])
 
     end_width = int(start_width)
-    total_height = int(start_height + block_height + end_height)
+    total_height = int(start_height + block_height + end_height) + 120
     total_width = start_width + block_width + end_width
 
     # print(start_height, block_height, end_height, start_width, block_width, end_width, total_height, total_width)

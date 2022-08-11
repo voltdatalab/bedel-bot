@@ -14,14 +14,16 @@ utils.reset_json('messages_old.json')
 with TelegramClient('anon', api['id'], api['hash']) as client:
 
     entities = database.get_entities()
+    print(len(entities))
     entities = [entity for entity in entities if entity.deleted is not True]
-
+    print(len(entities))
     for entity in entities:
 
         now = datetime.datetime.now()
         print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
         if entity.telegram_id == api['channel_response']:
+            print("Entrou no Channel Response")
             continue
         
         print("--- entity.telegram_id ", str(entity.telegram_id))

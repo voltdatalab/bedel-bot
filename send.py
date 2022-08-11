@@ -26,6 +26,8 @@ async def send_to_telegram(mensagem):
     try:
         await utils.text_to_image(mensagem)
         content = "Nome do Canal: " + mensagem.name if mensagem.name else ""
+        content += "\n Link: https://t.me/" + mensagem.username if mensagem.username else "" 
+        content +=  "/"+str(mensagem.telegram_message_id) if mensagem.telegram_message_id else "" 
         await client.send_message(api['channel_response'], content, file='html/out.png')
 
     except Exception as e:
@@ -34,6 +36,9 @@ async def send_to_telegram(mensagem):
         new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
         
         texto = "Nome do Canal: " + mensagem.name if mensagem.name else ""
+        texto += "\n Link: https://t.me/" + mensagem.username if mensagem.username else ""
+        texto += "/"+str(mensagem.telegram_message_id) if mensagem.telegram_message_id else ""
+
         texto += "\n\n"
         texto += html_diff(old, new)
         texto = texto.replace('<del>', '❌~~').replace('</del>', '~~').replace('<ins>', '✅**').replace('</ins>', '**')
@@ -55,6 +60,8 @@ async def send(filter_date):
             MessageChange.message_id, 
             func.max(MessageChange.date).label('date'), 
             Entity.name, 
+            Entity.username,
+            Message.message_id.label("telegram_message_id"),
             MessageChange.attr_name, 
             MessageChange.old_value, 
             MessageChange.new_value,
@@ -70,6 +77,8 @@ async def send(filter_date):
             ).group_by(
                 MessageChange.message_id,
                 Entity.name, 
+                Entity.username,
+                Message.message_id.label("telegram_message_id"),
                 MessageChange.attr_name, 
                 MessageChange.old_value, 
                 MessageChange.new_value,
@@ -80,6 +89,8 @@ async def send(filter_date):
     # Apenas as deletadas
     query_just_deleted = session.query(
         Entity.name, 
+        Entity.username,
+        Message.message_id.label("telegram_message_id"), 
         Message.message,
         Message.deleted_at_date
         ).outerjoin(
