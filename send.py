@@ -9,16 +9,13 @@ import datetime
 import emoji
 from simplediff import html_diff
 
-from selenium.webdriver.firefox.options import Options
-from selenium import webdriver
-
 from alchemy import Entity, Message, MessageChange
 import conn
 
 with open("config.json") as jsonfile:
     api = json.load(jsonfile)['telegram']
 
-async def send_to_telegram(mensagem, driver):
+async def send_to_telegram(mensagem):
     content = "Nome do Canal: " + mensagem.name if mensagem.name else ""
     content += ("\nMensagem: " + emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else "")
     content += ("\nDe: " + emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else "")
@@ -39,7 +36,7 @@ async def send_to_telegram(mensagem, driver):
     texto = texto.replace('<del>', '~~').replace('</del>', '~~').replace('<ins>', '**').replace('</ins>', '**')
 
     try:
-        await utils.text_to_image(mensagem, driver)
+        await utils.text_to_image(mensagem)
         await client.send_message(api['channel_response'], texto, file='html/out.png')
 
     except Exception as e:
@@ -106,13 +103,9 @@ async def send(filter_date):
             Message.date >= filter_date,
             Message.deleted != None
         ).all()
-
-    firefoxOptions = Options()
-    firefoxOptions.add_argument("-headless")
-    driver = webdriver.Firefox(executable_path="./geckodriver", options=firefoxOptions)
-
+    
     for row in query:
-        await send_to_telegram(row, driver)
+        await send_to_telegram(row)
         send_to_twitter(row)
 
         print('+------------------------')
@@ -124,7 +117,7 @@ async def send(filter_date):
         print('+------------------------\n')
 
     for row in query_just_deleted:
-        await send_to_telegram(row, driver)
+        await send_to_telegram(row)
         send_to_twitter(row)
 
         print('\n+-----------------')
@@ -132,8 +125,6 @@ async def send(filter_date):
         print("|Mensagem Deletada: {}".format(row.message))
         print("|Deletado em: {}".format(row.deleted_at_date))
         print('+----------------\n')
-    
-    driver.quit()
 
 client = TelegramClient('anon', api['id'], api['hash'])
 
