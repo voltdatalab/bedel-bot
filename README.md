@@ -28,7 +28,14 @@ Sendo as colunas comuns para ambas:
 - Execute o comando `python run_configuration.py` para fazer o upload do banco de dados.
 
 #### Para EC2
+
+##### Versão com Selenium (Método Antigo de Screenshot)
 - Instale o firefox `sudo amazon-linux-extras install firefox`
+
+##### Versão com o Imgkit (Método Novo de Screenshot + Veloz)
+- Execute o comando `sudo yum -y install wget`
+- Depois baixe o pacote `wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.amazonlinux2.x86_64.rpm`
+- Instale o pacote `sudo yum install ./wkhtmltox-0.12.6-1.amazonlinux2.x86_64.rpm`
 
 ### Capturar/Atualizar os canais monitorados
 
