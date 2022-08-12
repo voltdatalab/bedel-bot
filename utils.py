@@ -8,8 +8,6 @@ from simplediff import html_diff
 
 from selenium.webdriver.common.by import By
 
-from selenium.webdriver.firefox.options import Options
-from selenium import webdriver
 import os
 import emoji
 
@@ -128,7 +126,7 @@ def save_db_json_messages():
             with open('snapshot/messages_old.json', 'w') as f:
                 json.dump(entities, f, indent=4)
 
-async def text_to_image(mensagem):
+async def text_to_image(mensagem, driver):
 
     old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
     new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
@@ -181,11 +179,6 @@ async def text_to_image(mensagem):
     with open('html/tmp.html', 'w') as f:
         f.write(html)
 
-    firefoxOptions = Options()
-    firefoxOptions.add_argument("-headless")
-
-    driver = webdriver.Firefox(executable_path="./geckodriver", options=firefoxOptions)
-
     driver.get("file://" + os.getcwd() + "/html/tmp.html")
 
     e = driver.find_elements(By.XPATH, '//p')[0]
@@ -202,6 +195,8 @@ async def text_to_image(mensagem):
     # print(start_height, block_height, end_height, start_width, block_width, end_width, total_height, total_width)
 
     driver.save_screenshot('html/tmp.png')
+
+   
 
     img = Image.open('html/tmp.png')
     img2 = img.crop((0, 0, total_width, total_height))
