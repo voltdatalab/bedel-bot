@@ -22,7 +22,7 @@ with TelegramClient('anon', api['id'], api['hash']) as client:
         now = datetime.datetime.now()
         print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-        if entity.telegram_id == api['channel_response']:
+        if entity.telegram_id == api['channel_response'] or entity.telegram_id == api['channel_response_homolog']:
             print("Entrou no Channel Response")
             continue
         
