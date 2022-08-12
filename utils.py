@@ -1,6 +1,7 @@
 import json 
 import database
 import datetime
+import time
 
 from PIL import Image
 
@@ -181,12 +182,32 @@ async def text_to_image(mensagem):
     with open('html/tmp.html', 'w') as f:
         f.write(html)
 
+    import imgkit
+
+    # imgkit.from_file("file://" + os.getcwd() + "/html/tmp.html", css="file://" + os.getcwd() + "html/css/styles.css", output_path='html/out.png')
+    
+    kitoptions = {  "enable-local-file-access": None }
+
+    imgkit.from_url("file://" + os.getcwd() + "/html/tmp.html", output_path='html/out.png', options=kitoptions)
+    img = Image.open('html/out.png')
+    height = img.size[1]
+
+
+    img2 = img.crop((0, 0, 600, height))
+    #save img2
+    img2.save('html/out.png')
+
+
+    '''
+    
     firefoxOptions = Options()
     firefoxOptions.add_argument("-headless")
+    time.sleep(3)
 
     driver = webdriver.Firefox(executable_path="./geckodriver", options=firefoxOptions)
-
+    
     driver.get("file://" + os.getcwd() + "/html/tmp.html")
+    time.sleep(3)
 
     e = driver.find_elements(By.XPATH, '//p')[0]
     start_height = int(e.location['y'])
@@ -223,6 +244,7 @@ async def text_to_image(mensagem):
     background.paste(img2, offset)
 
     background.save('html/out.png')
+    '''
 
 def get_urls(t_message):
     url = []

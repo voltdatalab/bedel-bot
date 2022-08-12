@@ -46,6 +46,7 @@ async def send_to_telegram(mensagem):
         
     # await client.send_message('me', content)
 
+
 def send_to_twitter(mensagem):
     pass
 
@@ -131,7 +132,7 @@ client = TelegramClient('anon', api['id'], api['hash'])
 with client:
 
     filter_date = datetime.datetime.now(datetime.timezone.utc)
-    filter_date -= datetime.timedelta(hours=2)
+    filter_date -= datetime.timedelta(hours=200)
     
     print("\n\n Filtrando as mensagens de {}".format(filter_date))
 
