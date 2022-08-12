@@ -54,6 +54,7 @@ Sendo as colunas comuns para ambas:
 00 23 * * * cd /home/ec2-user/bot-presidenciaveis-telegram && /usr/bin/python3 trending.py >> ~/bot-presidenciaveis-telegram/trending.py 2>&1
 ```
 
-### Imagens
-![image](https://user-images.githubusercontent.com/6977257/179576428-fa9799c6-e776-4d1f-b321-6eaa00cfb529.png)
-- Gerando uma imagem a partir da diferença do texto, sugestão @lagolucas, inspiração [nyt_diff](https://twitter.com/nyt_diff)
+## 🖼️ Imagens
+![image](https://user-images.githubusercontent.com/6977257/184427290-d9d5790b-f7d8-4df2-b809-1e93fe3b9ea2.png)
+![image](https://user-images.githubusercontent.com/6977257/184427596-5daad0b5-1369-428e-ac77-6cce18ee8bba.png)
+###### Gerando uma imagem a partir da diferença do texto, sugestão @lagolucas, inspiração [nyt_diff](https://twitter.com/nyt_diff)
