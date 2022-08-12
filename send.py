@@ -23,25 +23,25 @@ async def send_to_telegram(mensagem):
     content += ("\nDeletado em: " + str(mensagem.deleted_at_date) if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date != None  else "")
 
     # await client.send_message(354322347, content)
+
+    old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
+    new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
+    
+    texto = "Nome do Canal: " + mensagem.name if mensagem.name else ""
+    texto += "\n Link: https://t.me/" + mensagem.username if mensagem.username else ""
+    texto += "/"+str(mensagem.telegram_message_id) if mensagem.telegram_message_id else ""
+
+    texto += "\n\n"
+    texto += html_diff(old, new)
+    texto = texto.replace('<del>', '~~').replace('</del>', '~~').replace('<ins>', '**').replace('</ins>', '**')
+
     try:
         await utils.text_to_image(mensagem)
-        content = "Nome do Canal: " + mensagem.name if mensagem.name else ""
-        content += "\n Link: https://t.me/" + mensagem.username if mensagem.username else "" 
-        content +=  "/"+str(mensagem.telegram_message_id) if mensagem.telegram_message_id else "" 
-        await client.send_message(api['channel_response'], content, file='html/out.png')
+        await client.send_message(api['channel_response'], texto, file='html/out.png')
 
     except Exception as e:
         print("Erro ao enviar mensagem para o Telegram: {}".format(e))
-        old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
-        new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
         
-        texto = "Nome do Canal: " + mensagem.name if mensagem.name else ""
-        texto += "\n Link: https://t.me/" + mensagem.username if mensagem.username else ""
-        texto += "/"+str(mensagem.telegram_message_id) if mensagem.telegram_message_id else ""
-
-        texto += "\n\n"
-        texto += html_diff(old, new)
-        texto = texto.replace('<del>', '❌~~').replace('</del>', '~~').replace('<ins>', '✅**').replace('</ins>', '**')
         await client.send_message(api['channel_response'], texto)
         
     # await client.send_message('me', content)
