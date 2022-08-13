@@ -164,6 +164,10 @@ async def text_to_image(mensagem):
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/styles.css">
+
+        <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
+        <script>window.onload = function () { twemoji.parse(document.body);}</script>
+
     </head>
     <body>
     <p>
@@ -186,7 +190,7 @@ async def text_to_image(mensagem):
 
     # imgkit.from_file("file://" + os.getcwd() + "/html/tmp.html", css="file://" + os.getcwd() + "html/css/styles.css", output_path='html/out.png')
     
-    kitoptions = {  "enable-local-file-access": None }
+    kitoptions = {  "enable-local-file-access": None , "encoding": 'UTF-8'}
 
     imgkit.from_url("file://" + os.getcwd() + "/html/tmp.html", output_path='html/out.png', options=kitoptions)
     img = Image.open('html/out.png')
