@@ -173,7 +173,7 @@ async def text_to_image(mensagem):
     <small>{}</small>
     </p>
     <legenda></div><del>&nbsp &nbsp &nbsp</del>&nbsp Trechos removidos &nbsp &nbsp &nbsp<ins>&nbsp &nbsp &nbsp</ins>&nbsp Trechos acrescentados</legenda></br></br>
-    <img src='https://nucleo.jor.br/content/images/2022/06/landing-nucleo_logo-header.png'><br>
+    <img src='landing-nucleo_logo-header.png'><br>
     <url>nucleo.jor.br/bedelbot</url>
     </body>
     </html>
