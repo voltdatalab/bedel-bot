@@ -67,6 +67,8 @@ class MessageChange(Base):
     attr_name = Column(Text)
     old_value = Column(Text)
     new_value = Column(Text)
+    addition = Column(Text)
+    removal = Column(Text)
 
     def __repr__(self):
         return f'MessageChange {self.attr_name}'

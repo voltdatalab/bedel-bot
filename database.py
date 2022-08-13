@@ -5,6 +5,7 @@ import emoji
 from sqlalchemy import create_engine, func
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
+from simplediff import string_diff
 
 from alchemy import Entity, EntityChange, Message, MessageChange, Media, Urls
 import utils
@@ -312,12 +313,20 @@ def save_messages(id, t_messages):
 
             # Adiciona changes na tabela MessageChange
             for change in changes:
+                diff = None
+                if change[0] == 'message':
+                    diff = string_diff(change[1], change[2])
+                    string_add = ' | '.join([' '.join(d[1]) for d in diff if d[0] == '+'])
+                    string_del = ' | '.join([' '.join(d[1]) for d in diff if d[0] == '-'])
+
                 session.add(MessageChange(
                     message_id=old_message.id,
                     date = t_message.edit_date if t_message.edit_date and change[0] == 'message' else datetime.datetime.now(datetime.timezone.utc),
                     attr_name=change[0],
                     old_value=change[1],
                     new_value=change[2],
+                    addition = string_add if diff else None,
+                    removal = string_del if diff else None
                 ))
             
             old_message.forwards = t_message.forwards
