@@ -39,6 +39,9 @@ async def send():
     result_trending_today = session.query(TrendingToday).all()
     result_super_trending_today = session.query(SuperTrendingToday).all()
 
+    if len(result_trending_today) > 0 or len(result_super_trending_today) > 0:
+        await client.send_message(api['channel_response'], content, file='html/alerta_postviral.png')
+
     if len(result_trending_today) > 0:
         head_line = '**🚀 Trendings Diarias ----- **\n'
         await client.send_message(api['channel_response'], head_line)

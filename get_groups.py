@@ -17,7 +17,7 @@ with TelegramClient('anon', api['id'], api['hash']) as client:
 	dialogs = client.iter_dialogs()
 	for dialog in client.iter_dialogs():
 		
-		if dialog.telegram_id == api['channel_response'] or dialog.telegram_id == api['channel_response_homolog']:
+		if dialog.entity.id == api['channel_response'] or dialog.entity.id == api['channel_response_homolog']:
 			print("Entrou no Channel Response")
 			continue
 
