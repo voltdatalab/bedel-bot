@@ -39,9 +39,6 @@ b {
 img {
   width:130px;
   margin-left: 2em;
-    filter: gray; /* IE6-9 */
-  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
-  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
 }
 img.emoji {
    height: 1em;

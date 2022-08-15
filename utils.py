@@ -165,8 +165,8 @@ async def text_to_image(mensagem):
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/styles.css">
 
-        <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
-        <script>window.onload = function () { twemoji.parse(document.body);}</script>
+        <script src="js/twemoji.min.js"></script>
+        <script>window.onload = function () {}</script>
 
     </head>
     <body>
@@ -181,7 +181,7 @@ async def text_to_image(mensagem):
     <url>nucleo.jor.br/bedelbot</url>
     </body>
     </html>
-    """.format(canal, texto, emoji.emojize(data))
+    """.format("{twemoji.parse(document.body);}", canal, texto, emoji.emojize(data))
 
     with open('html/tmp.html', 'w') as f:
         f.write(html)

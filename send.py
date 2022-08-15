@@ -42,6 +42,7 @@ async def send_to_telegram(mensagem):
     except Exception as e:
         print("Erro ao enviar mensagem para o Telegram: {}".format(e))
         
+        
         await client.send_message(api['channel_response'], texto)
         
     # await client.send_message('me', content)
@@ -132,7 +133,7 @@ client = TelegramClient('anon', api['id'], api['hash'])
 with client:
 
     filter_date = datetime.datetime.now(datetime.timezone.utc)
-    filter_date -= datetime.timedelta(hours=1)
+    filter_date -= datetime.timedelta(hours=2)
     
     print("\n\n Filtrando as mensagens de {}".format(filter_date))
 
