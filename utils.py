@@ -191,8 +191,10 @@ async def text_to_image(mensagem):
     # imgkit.from_file("file://" + os.getcwd() + "/html/tmp.html", css="file://" + os.getcwd() + "html/css/styles.css", output_path='html/out.png')
     
     kitoptions = {  "enable-local-file-access": None , "encoding": 'UTF-8'}
+    config = imgkit.config(wkhtmltoimage='/usr/local/bin/wkhtmltoimage')
 
-    imgkit.from_url("file://" + os.getcwd() + "/html/tmp.html", output_path='html/out.png', options=kitoptions)
+    imgkit.from_url("file://" + os.getcwd() + "/html/tmp.html", output_path='html/out.png', options=kitoptions, config=config)
+    
     img = Image.open('html/out.png')
     height = img.size[1]
 
