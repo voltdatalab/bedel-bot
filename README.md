@@ -17,6 +17,8 @@ Sendo as colunas comuns para ambas:
 - **old_value:** O valor anterior
 - **new_value:** O Valor atual
 - **date:** Data de modificação
+- **addition** Caracteres inseridos
+- **removal** caracteres removidos 
 
 ## 🏃 Como Executar
 
@@ -36,6 +38,10 @@ Sendo as colunas comuns para ambas:
 - Execute o comando `sudo yum -y install wget`
 - Depois baixe o pacote `wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.amazonlinux2.x86_64.rpm`
 - Instale o pacote `sudo yum install ./wkhtmltox-0.12.6-1.amazonlinux2.x86_64.rpm`
+
+Para o imgKit funcionar corretamente ao ser rodado pelo crontab na EC2 devemos modificar o caminho dos arquivos _binários_.
+- Descrubra onde esta o arquivo digitando `whereis wkhtmltoimage`
+- Copie eles com o comando `sudo cp /usr/local/bin/wkhtmlto* /usr/bin/`
 
 ### Capturar/Atualizar os canais monitorados
 
