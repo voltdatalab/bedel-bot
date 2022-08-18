@@ -165,7 +165,7 @@ async def text_to_image(mensagem):
             if media_type == None: 
                 return "Não foi possível gerar a imagem, Motivo: Não foi possível obter o tipo de mídia"
 
-            texto += " 🚫 Acabou de deletar um arquivo de <u>Media</u> do tipo <b>"+str(media_type)+"</b> no dia <b>"+ str(data_deleted) +"</b>"
+            texto += " 🚫 Acabou de deletar um <u>Arquivo de mídia</u> do tipo <b>"+str(media_type)+"</b> no dia <b>"+ str(data_deleted) +"</b>"
             data = ''
             legendas = ''
  

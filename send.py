@@ -134,7 +134,7 @@ client = TelegramClient('anon', api['id'], api['hash'])
 with client:
 
     filter_date = datetime.datetime.now(datetime.timezone.utc)
-    filter_date -= datetime.timedelta(hours=1)
+    filter_date -= datetime.timedelta(minutes=48)
     
     print("\n\n Filtrando as mensagens de {}".format(filter_date))
 
