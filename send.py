@@ -94,6 +94,7 @@ async def send(filter_date):
         Entity.username,
         Message.message_id.label("telegram_message_id"), 
         Message.message,
+        Message.id,
         Message.deleted_at_date
         ).outerjoin(
             MessageChange, 
@@ -122,7 +123,7 @@ async def send(filter_date):
         await send_to_telegram(row)
         send_to_twitter(row)
 
-        print('\n+-----------------')
+        print('\n+-----Just Deleted-----')
         print("|Grupo: {}".format(row.name))
         print("|Mensagem Deletada: {}".format(row.message))
         print("|Deletado em: {}".format(row.deleted_at_date))

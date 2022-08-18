@@ -4,6 +4,7 @@ import datetime
 import time
 
 from PIL import Image
+import imgkit
 
 from simplediff import html_diff
 
@@ -130,7 +131,8 @@ def save_db_json_messages():
                 json.dump(entities, f, indent=4)
 
 async def text_to_image(mensagem):
-
+    
+    canal = mensagem.name if hasattr( mensagem, 'name') else ""
     old = emoji.emojize(mensagem.old_value) if hasattr( mensagem, 'old_value') else ""
     new = emoji.emojize(mensagem.new_value) if hasattr( mensagem, 'new_value') else ""
     data = str(mensagem.date) if hasattr( mensagem, 'date') else ""
@@ -140,8 +142,16 @@ async def text_to_image(mensagem):
         data -= datetime.timedelta(hours=3)
         data = data.strftime('%d/%m/%Y %H:%M:%S')
     
-    data_deleted = str(mensagem.date_deleted) if hasattr( mensagem, 'date_deleted') else ""
-    if data_deleted != "":
+    if hasattr( mensagem, 'new_value'):
+        texto = html_diff(old, new)
+    else:
+        texto = emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else ""
+    
+    legendas = "<legenda></div><del>&nbsp &nbsp &nbsp</del>&nbsp Trechos removidos &nbsp &nbsp &nbsp<ins>&nbsp &nbsp &nbsp</ins>&nbsp Trechos acrescentados</legenda></br></br>"
+
+    if hasattr( mensagem, 'deleted_at_date') and mensagem.deleted_at_date is not None:
+        
+        data_deleted = str(mensagem.deleted_at_date).split('.')[0]
         data_deleted = datetime.datetime.strptime(data_deleted, '%Y-%m-%d %H:%M:%S')
         data_deleted -= datetime.timedelta(hours=3)
         data_deleted = data_deleted.strftime('%d/%m/%Y %H:%M:%S')
@@ -149,14 +159,18 @@ async def text_to_image(mensagem):
         data += "\n\n 🚫 Esta Mensagem Foi Deletada: " + str(data_deleted)
         data += "\n\n"
         
-    canal = mensagem.name if hasattr( mensagem, 'name') else ""
+        if (texto == "" or texto == ''):
 
-    if hasattr( mensagem, 'new_value'):
-        texto = html_diff(old, new)
-    else:
-        texto = emoji.emojize(mensagem.message) if hasattr( mensagem, 'message') else ""
-    
+            media_type = media_type = database.get_media_type(mensagem.id)
+            if media_type == None: 
+                return "Não foi possível gerar a imagem, Motivo: Não foi possível obter o tipo de mídia"
+
+            texto += " 🚫 Acabou de deletar um arquivo de <u>Media</u> do tipo <b>"+str(media_type)+"</b> no dia <b>"+ str(data_deleted) +"</b>"
+            data = ''
+            legendas = ''
+ 
     print((canal, texto, data))
+    
     
     html = """
     <!doctype html>
@@ -176,20 +190,16 @@ async def text_to_image(mensagem):
     </br>
     <small>{}</small>
     </p>
-    <legenda></div><del>&nbsp &nbsp &nbsp</del>&nbsp Trechos removidos &nbsp &nbsp &nbsp<ins>&nbsp &nbsp &nbsp</ins>&nbsp Trechos acrescentados</legenda></br></br>
+    {}
     <img src='landing-nucleo_logo-header.png'><br>
     <url>nucleo.jor.br/bedelbot</url>
     </body>
     </html>
-    """.format("{twemoji.parse(document.body);}", canal, texto, emoji.emojize(data))
+    """.format("{twemoji.parse(document.body);}", canal, texto, emoji.emojize(data), legendas)
 
     with open('html/tmp.html', 'w') as f:
         f.write(html)
 
-    import imgkit
-
-    # imgkit.from_file("file://" + os.getcwd() + "/html/tmp.html", css="file://" + os.getcwd() + "html/css/styles.css", output_path='html/out.png')
-    
     kitoptions = {  "enable-local-file-access": None , "encoding": 'UTF-8'}
     #config = imgkit.config(wkhtmltoimage='/usr/local/bin/wkhtmltoimage')
     #imgkit.from_url("file://" + os.getcwd() + "/html/tmp.html", output_path='html/out.png', options=kitoptions, config=config)

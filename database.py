@@ -12,6 +12,12 @@ import utils
 
 engine = conn.run()
 
+def get_media_type(mensagem_id):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    media = session.query(Media).filter_by(message_id=mensagem_id).first()
+    return media.mime_type if media else None
+
 # ENTITIES STUFF
 def update_entities(dialog):
     Session = sessionmaker(bind=engine)
