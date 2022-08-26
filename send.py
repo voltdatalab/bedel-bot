@@ -38,12 +38,17 @@ async def send_to_telegram(mensagem):
     try:
         await utils.text_to_image(mensagem)
         await client.send_message(api['channel_response'], texto, file='html/out.png')
-
+    
     except Exception as e:
         print("Erro ao enviar mensagem para o Telegram: {}".format(e))
+
+        if (str(e) == 'The caption is too long (caused by SendMediaRequest)'):
+            print("---- Legenda muito grande! Separando em Duas Postagens ----")
+            await client.send_message(api['channel_response'], '', file='html/out.png')
+            await client.send_message(api['channel_response'], texto)
         
-        
-        await client.send_message(api['channel_response'], texto)
+        else:
+            await client.send_message(api['channel_response'], texto)
         
     # await client.send_message('me', content)
 
@@ -134,7 +139,7 @@ client = TelegramClient('anon', api['id'], api['hash'])
 with client:
 
     filter_date = datetime.datetime.now(datetime.timezone.utc)
-    filter_date -= datetime.timedelta(minutes=48)
+    filter_date -= datetime.timedelta(minutes=100)
     
     print("\n\n Filtrando as mensagens de {}".format(filter_date))
 
