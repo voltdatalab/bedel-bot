@@ -4,10 +4,11 @@ import database
 
 
 async def main():
-	api_id = 13671196
-	api_hash = "db08bc60a8e5e6fb2927d192df4f30c0"
+	api = None
+	with open("config.json") as jsonfile:
+		api = json.load(jsonfile)['telegram']
 
-	app = Client("my_account", api_id=api_id, api_hash=api_hash)
+	app = Client("my_account", api_id=api['id'], api_hash=api['hash'])
 	app.start()
 	entities = database.get_entities()
 	for entity in entities:
