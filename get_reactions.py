@@ -16,7 +16,7 @@ async def main():
 			async with app:
 				message_tm = await app.get_messages(chat_id=entity.username, message_ids=message.message_id)
 			
-			if (message.reactions):
+			if (hasattr(message, 'reactions') and message.reactions):
 				print(str((message_tm.reactions.reactions)))
 				database.save_reactions(message, message_tm.reactions.reactions)
 	app.stop()
