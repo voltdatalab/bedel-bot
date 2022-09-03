@@ -1,4 +1,5 @@
 import datetime
+from itertools import count
 import conn
 import emoji
 
@@ -7,7 +8,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from simplediff import string_diff
 
-from alchemy import Entity, EntityChange, Message, MessageChange, Media, Urls
+from alchemy import Entity, EntityChange, Message, MessageChange, Media, Urls, Reaction
 import utils
 
 engine = conn.run()
@@ -398,6 +399,14 @@ def get_messages():
 
     return session.query(Message).all()
 
+
+def get_chat_messages(entity):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    return session.query(Message).filter_by(entity_id=entity.id).all()
+
+
 def refresh_deleted_messages():
     import pandas as pd
 
@@ -417,6 +426,27 @@ def refresh_deleted_messages():
         print(message.message)
         message.deleted = True
         message.deleted_at_date = datetime.datetime.now(datetime.timezone.utc)
+
+    session.commit()
+    session.close()
+
+
+def save_reactions(message, reactions):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    for reaction in reactions:
+        old_reaction = session.query(Reaction).filter_by(message_id=message.id).filter(emoji == emoji.demojize(reaction.emoji)).first()
+
+        if (old_reaction):
+            old_reaction.count = reaction.count
+        else:
+            new_reaction = Reaction(message_id = message.id,
+            emoji = emoji.demojize(reaction.emoji),
+            count = reaction.count
+            )
+            session.add(new_reaction)
+        session.flush() 
 
     session.commit()
     session.close()

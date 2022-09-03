@@ -83,6 +83,20 @@ class Urls(Base):
     def __repr__(self):
         return f'Url {self.url}'
 
+
+class Reaction(Base):
+    __tablename__ = 'telegram_reactions'
+
+    id = Column(Integer, primary_key=True)
+    message_id = Column(Integer, ForeignKey("telegram_messages.id"), nullable=False)
+    emoji = Column(Text)
+    count = Column(Integer)
+
+    def __repr__(self):
+        return f'reaction: {self.emoji} {self.count}'
+
+
+
 class Media(Base):
     __tablename__ = 'telegram_medias'
 
