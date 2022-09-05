@@ -1,14 +1,14 @@
 import asyncio
 from pyrogram import Client
 import database
-
+import json
 
 async def main():
 	api = None
 	with open("config.json") as jsonfile:
 		api = json.load(jsonfile)['telegram']
 
-	app = Client("my_account", api_id=api['id'], api_hash=api['hash'])
+	app = Client("annon_reactions", api_id=api['id'], api_hash=api['hash'])
 	app.start()
 	entities = database.get_entities()
 	for entity in entities:
